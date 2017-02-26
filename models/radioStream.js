@@ -68,17 +68,26 @@ class RadioStream {
         });
         //Convert to minutes
         timeout = timeout * 60 * 1000;
-        timeout = 40000;
         setTimeout( () => {
             this.is_recording = false;
-            this.streamRequest.abort();
+            this.fileRecording.FTP_File()
+                .then(() => {
+                    this.streamRequest.abort();
+                }).catch( err => {
+                    this.streamRequest.abort();
+                });
         }, timeout);
     }
 
     stopStream() {
         if (this.is_recording) {
             this.is_recording = false;
-            this.streamRequest.abort();
+            this.fileRecording.FTP_File()
+                .then(() => {
+                    this.streamRequest.abort();
+                }).catch( err => {
+                this.streamRequest.abort();
+            });
         }
     }
 

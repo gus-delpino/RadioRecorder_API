@@ -1,6 +1,7 @@
 const Logger = require('../logger');
-const radio_list = require('../radio_list');
 const StreamPool = require('./streamPool');
+
+const FileRecording = require('../models/fileRecording');
 
 const Helper = {};
 
@@ -21,6 +22,17 @@ Helper.testRadioStream = function(radio_id, callback) {
         Logger.log('error', err);
         callback(err);
     });
+};
+
+Helper.recordAllOneHour = function(callback) {
+    let Radios = StreamPool.getRadios();
+    for(let radio_id in Radios) {
+        if (Radios.hasOwnProperty(radio_id)) {
+            //Start Recording
+            Radios[radio_id].start1HourRecording();
+        }
+    }
+    callback(true);
 };
 
 Helper.recordOneHour = function(radio_id, callback) {

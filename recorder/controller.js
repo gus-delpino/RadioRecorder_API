@@ -41,6 +41,12 @@ module.exports = {
         })
     },
 
+    recordAllOneHour: (req, res) => {
+        Helper.recordAllOneHour(() => {
+            res.send('Done');
+        });
+    },
+
     stopRecording: (req, res) => {
         if (!validateRadioId(req.query.radio_id)) {
             res.send('No Radio ID');
@@ -49,6 +55,10 @@ module.exports = {
 
         Helper.stopRecording(req.query.radio_id);
         res.send('Done');
+    },
+
+    testFTP: (req, res) => {
+        Helper.testFTP();
     }
 
 

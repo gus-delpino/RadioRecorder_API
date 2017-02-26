@@ -1,7 +1,8 @@
 const express = require('express');
 
 const app = express();
-const port = process.env.PORT || 18443;
+
+const port = process.env.PORT || require('./local_config')['PORT'];
 
 const routes = require('./recorder/routes');
 

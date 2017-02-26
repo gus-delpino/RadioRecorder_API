@@ -14,6 +14,7 @@ router.get('/getRadioInfo', ctrl.getRadioInfo);
 router.get('/testRadioStream', ctrl.testRadioStream);
 router.get('/recordOneHour', ctrl.recordOneHour);
 router.get('/stopRecording', ctrl.stopRecording);
+router.get('/recordAllOneHour', ctrl.recordAllOneHour);
 
 module.exports = router;
 
