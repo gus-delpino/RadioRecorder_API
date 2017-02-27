@@ -47,6 +47,12 @@ module.exports = {
         });
     },
 
+    recordAllTwoHours: (req, res) => {
+        Helper.recordAllTwoHours(() => {
+            res.send('Done');
+        });
+    },
+
     stopRecording: (req, res) => {
         if (!validateRadioId(req.query.radio_id)) {
             res.send('No Radio ID');

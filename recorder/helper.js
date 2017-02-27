@@ -35,6 +35,17 @@ Helper.recordAllOneHour = function(callback) {
     callback(true);
 };
 
+Helper.recordAllTwoHours = function(callback) {
+    let Radios = StreamPool.getRadios();
+    for (let radio_id in Radios) {
+        if (Radios.hasOwnProperty(radio_id)) {
+            //Start Recording
+            Radios[radio_id].start2HourRecording();
+        }
+    }
+    callback(true);
+};
+
 Helper.recordOneHour = function(radio_id, callback) {
     let Radio = StreamPool.getRadio(radio_id);
 
