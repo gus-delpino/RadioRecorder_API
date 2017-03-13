@@ -2,18 +2,20 @@ const radio_list = require('../radio_list');
 const Helper = require('./helper');
 
 function validateRadioId(radio_id) {
-    return radio_id && radio_list[radio_id];
+    return !!radio_id;
 }
 
 module.exports = {
     getRadios : (req, res) => {
-        Helper.reloadRadios();
-        res.json(Helper.getRadios());
+        Helper.getRadios()
+            .then( radios => res.json(radios))
+            .catch( err => res.send(`Error: ${err}`) );
     },
 
     getRadioInfo : (req, res) => {
         if (!validateRadioId(req.query.radio_id)) {
             res.send('Radio not found');
+            return false;
         }
         res.json(Helper.getRadioInfo(req.query.radio_id));
     },
@@ -23,10 +25,11 @@ module.exports = {
             res.send('No radio ID');
             return false;
         }
-        Helper.testRadioStream(req.query.radio_id, (result) => {
-            let res_msg = result ? 'Stream is working' : 'Stream NOT working';
-            res.send(res_msg);
-        })
+        Helper.testRadioStream(req.query.radio_id)
+            .then(result => {
+                let res_msg = result ? 'Stream is working' : 'Stream NOT working';
+                res.send(res_msg);
+            }).catch( err => res.send(`Error: ${err}`) );
     },
 
     recordOneHour: (req, res) => {
@@ -35,10 +38,9 @@ module.exports = {
             return false;
         }
 
-        Helper.recordOneHour(req.query.radio_id, (err) => {
-            let res_msg = err ? 'Error: ' + err : 'Recording';
-            res.send(res_msg);
-        })
+        Helper.recordOneHour(req.query.radio_id)
+            .then( () =>  res.send('Recording') )
+            .catch( err => res.send('Error: ' + err) );
     },
 
     recordAllOneHour: (req, res) => {

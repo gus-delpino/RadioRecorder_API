@@ -1,17 +1,13 @@
 const request = require('request');
 const Logger = require('../logger');
 const FileRecording = require('./fileRecording');
-const radioList = require('../radio_list');
+
 
 class RadioStream {
-    constructor(radio_name) {
-        if (radioList[radio_name]) {
-            this.name = radioList[radio_name]['name'];
-            this.streamUrl = radioList[radio_name]['stream'];
-            this.fileRecording = null;
-        } else {
-            Logger.log(`${radio_name} is not a valid name`);
-        }
+    constructor(radio_name, url) {
+        this.name = radio_name;
+        this.streamUrl = url;
+        this.fileRecording = null;
         this.streamRequest = null;
         this.is_recording = false;
     }
@@ -22,10 +18,6 @@ class RadioStream {
             stream: this.streamUrl,
             is_recording: this.is_recording
         };
-    }
-
-    validRadio() {
-        return !!this.name;
     }
 
     isRecording() {
@@ -45,9 +37,6 @@ class RadioStream {
     }
 
     saveStream(timeout) {
-        if (!this.validRadio()) {
-            return false;
-        }
         if (!timeout) {
             timeout = 5;
         }
@@ -92,15 +81,17 @@ class RadioStream {
     }
 
     testStream() {
-        if (!this.validRadio()) {
-            return false;
-        }
         const req_params = {method: 'GET', uri: this.streamUrl};
 
         return new Promise((resolve, reject) => {
+            if (!this.streamUrl) {
+                reject('This radio does not have a stream URL');
+                return false;
+            }
             this.streamRequest = request(req_params, (err, response) => {
                 if (err || response.statusCode != 200) {
                     reject('Could not contact URL Stream');
+                    return false;
                 }
             }).on('data', (dataChunk) => {
                 this.streamRequest.abort();
