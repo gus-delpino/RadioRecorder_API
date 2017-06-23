@@ -1,4 +1,4 @@
-const radio_list = require('../radio_list');
+'use strict';
 const Helper = require('./helper');
 
 function validateRadioId(radio_id) {
@@ -8,7 +8,7 @@ function validateRadioId(radio_id) {
 module.exports = {
     getRadios : (req, res) => {
         Helper.getRadios()
-            .then( radios => res.json(radios))
+            .then( radios => res.json(radios) )
             .catch( err => res.send(`Error: ${err}`) );
     },
 
@@ -17,7 +17,9 @@ module.exports = {
             res.send('Radio not found');
             return false;
         }
-        res.json(Helper.getRadioInfo(req.query.radio_id));
+        Helper.getRadioInfo(req.query.radio_id)
+            .then( radio => res.json(radio || null) )
+            .catch( err => res.send(`Error: ${err}`) );
     },
 
     testRadioStream: (req, res) => {
@@ -63,13 +65,7 @@ module.exports = {
 
         Helper.stopRecording(req.query.radio_id);
         res.send('Done');
-    },
-
-    testFTP: (req, res) => {
-        Helper.testFTP();
     }
-
-
 
 
 };

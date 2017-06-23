@@ -1,31 +1,25 @@
 'use strict';
 
-const DBHandle = require('./dbHandler');
 const RadioStream = require('./radioStream');
 
-class Radio {
-
-    constructor(radio_id, name, urlstream = null) {
-        this.radio_id = radio_id;
+const Radio = {
+    id: null,
+    name: null,
+    Stream: null,
+    init: function( radioId, name, urlStream = null ) {
+        this.id = radioId;
         this.name = name;
-        this.urlstream = urlstream;
 
-
-        this.Stream = new RadioStream(name, urlstream);
-    }
-
-    toJSON() {
+        this.Stream = Object.create(RadioStream).init(name, urlStream);
+        return this;
+    },
+    toJSON: function() {
         return {
-            radio_id: this.radio_id,
+            id: this.id,
             name: this.name,
-            stream: this.urlstream,
-            is_recording: this.Stream.is_recording,
-            recording_data: null
-
+            streamData: this.Stream.getInfo()
         }
     }
-
-
-}
+};
 
 module.exports = Radio;

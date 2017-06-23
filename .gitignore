@@ -3,4 +3,5 @@
 local_config.js
 /recordings
 *.log
-radio_list.js
+/nosql/data
+package-lock.json

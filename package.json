@@ -4,6 +4,8 @@
   "description": "Record Radio Stations",
   "main": "index.js",
   "scripts": {
+    "debug": "nodemon --inspect --debug index.js --ignore nosql/ --ignore recordings/ --ignore errors.log",
+    "debugNode": "node --inspect=5858 --debug index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Gustavo del Pino",
@@ -13,6 +15,7 @@
     "fs": "0.0.1-security",
     "ftp": "^0.3.10",
     "moment": "^2.17.1",
+    "mongoose": "^4.10.6",
     "mysql": "^2.13.0",
     "request": "^2.79.0",
     "winston": "^2.3.1"

@@ -1,7 +1,7 @@
 'use strict';
 
 const mysql = require('mysql');
-const config = require('../local_config')['MYSQL'];
+const config = require('../local_config')['MONGO'];
 
 class DBHandler {
     constructor() {

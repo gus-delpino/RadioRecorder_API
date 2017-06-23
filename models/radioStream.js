@@ -1,52 +1,66 @@
+'use strict';
+
 const request = require('request');
 const Logger = require('../logger');
 const FileRecording = require('./fileRecording');
 
+const RadioStream = {
+    name: null,
+    streamUrl: null,
+    fileRecording: null,
+    streamRequest: null,
+    isRecording: false,
 
-class RadioStream {
-    constructor(radio_name, url) {
-        this.name = radio_name;
+    init: function(name, url) {
+        this.name = name;
         this.streamUrl = url;
-        this.fileRecording = null;
-        this.streamRequest = null;
-        this.is_recording = false;
-    }
+        return this;
+    },
 
-    getInfo() {
+    getInfo: function() {
         return {
-            name: this.name,
-            stream: this.streamUrl,
-            is_recording: this.is_recording
-        };
-    }
+            streamUrl: this.streamUrl,
+            isRecording: this.isRecording }
+    },
 
-    isRecording() {
-        return this.is_recording;
-    }
+    testStream: function() {
+        const req_params = { method: 'GET', uri: this.streamUrl[0] };
 
-    start1HourRecording() {
-        //One hour
-        let onehour = 60;
-        this.saveStream(onehour);
-    }
+        return new Promise((resolve, reject) => {
+            if (this.streamUrl.length === 0) {
+                reject('This radio does not have a stream URL');
+            }
+            this.streamRequest = request(req_params, (err, response) => {
+                if (err || response.statusCode !== 200) {
+                    reject('Could not contact URL Stream');
+                }
+            }).on('data', (dataChunk) => {
+                this.streamRequest.abort();
+                resolve( this.streamRequest.response.statusCode === 200 );
+            });
+        });
+    },
 
-    start2HourRecording() {
-        //Two hours
-        let twohours = 2 * 60;
-        this.saveStream(twohours);
-    }
-
-    saveStream(timeout) {
+    start1HourRecording: function() {
+        const oneHour = 60;
+        this.saveStream(oneHour);
+    },
+    start2HourRecording: function() {
+        let twoHours = 2 * 60;
+        this.saveStream(twoHours);
+    },
+    saveStream: function(timeout) {
         if (!timeout) {
             timeout = 5;
         }
 
-        this.is_recording = true;
-        this.fileRecording = new FileRecording(this.name);
+        this.isRecording = true;
+        this.fileRecording = Object.create(FileRecording).init(this.name);
+
         const req_params = { method: 'GET', uri: this.streamUrl };
 
         this.streamRequest = request(req_params, (err, response, body) => {
-            if (err || response.statusCode != 200) {
+            if (err || response.statusCode !== 200) {
                 Logger.log(body);
                 this.is_recording = false;
                 this.fileRecording.removeFile();
@@ -58,50 +72,18 @@ class RadioStream {
         //Convert to minutes
         timeout = timeout * 60 * 1000;
         setTimeout( () => {
-            this.is_recording = false;
-            this.fileRecording.FTP_File()
-                .then(() => {
-                    this.streamRequest.abort();
-                }).catch( err => {
-                    this.streamRequest.abort();
-                });
+            this.stopStream();
         }, timeout);
-    }
+    },
 
-    stopStream() {
-        if (this.is_recording) {
-            this.is_recording = false;
+    stopStream: function() {
+        if (this.isRecording) {
+            this.isRecording = false;
             this.fileRecording.FTP_File()
-                .then(() => {
-                    this.streamRequest.abort();
-                }).catch( err => {
-                this.streamRequest.abort();
-            });
+                .then(() => this.streamRequest.abort() )
+                .catch( err => this.streamRequest.abort() );
         }
     }
-
-    testStream() {
-        const req_params = {method: 'GET', uri: this.streamUrl};
-
-        return new Promise((resolve, reject) => {
-            if (!this.streamUrl) {
-                reject('This radio does not have a stream URL');
-                return false;
-            }
-            this.streamRequest = request(req_params, (err, response) => {
-                if (err || response.statusCode != 200) {
-                    reject('Could not contact URL Stream');
-                    return false;
-                }
-            }).on('data', (dataChunk) => {
-                this.streamRequest.abort();
-                let result = this.streamRequest.response.statusCode == 200;
-                resolve(result);
-                return result;
-            });
-        });
-    }
-
-}
+};
 
 module.exports = RadioStream;
